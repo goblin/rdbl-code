@@ -1,0 +1,10 @@
+this takes some binary data and encodes it in readable phrases
+a'la pwgen
+
+to rebuild dict.hh you need perl with the Algorithm::Huffman module
+from CPAN. Which is currently broken (as of 0.09). You need to apply
+the fix as described here: https://rt.cpan.org/Public/Bug/Display.html?id=27677
+
+credit:
+words_alpha.txt taken from https://github.com/dwyl/english-words
+(but removed words with dashes, and converted linefeed to unix)
