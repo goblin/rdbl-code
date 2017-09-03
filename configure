@@ -1,0 +1,6 @@
+#! /bin/bash
+
+# not really an autoconf script. Just ensures that dict.hh isn't needlessly
+# rebuilt.
+
+touch dict.hh
