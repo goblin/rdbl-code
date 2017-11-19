@@ -1,12 +1,75 @@
-this takes some binary data and encodes it in readable phrases
-a'la pwgen
+`rdbl_enc` takes some binary data and encodes it in readable phrases,
+a'la pwgen. `rdbl_dec` takes such a phrase and decodes it back to original
+binary. This allows it to be easily read, remembered, and retyped.
 
-codes about 3 bits per character
+For instance, 0xDEADBEEF becomes "utfull della".
 
-to rebuild dict.hh you need perl with the Algorithm::Huffman module
+Primary purpose is to allow relatively fast copying of data from one
+computer screen to another via keyboard (to jump an airgap).
+
+Codes about 3 bits per character. Uses pseudo-words up to 6 letters.
+
+COMPILATION
+
+To rebuild dict.hh you need perl with the Algorithm::Huffman module
 from CPAN. Which is currently broken (as of 0.09). You need to apply
 the fix as described here: https://rt.cpan.org/Public/Bug/Display.html?id=27677
 
-credit:
+TECHNICAL DETAILS
+
+Does all this by creating a Huffmann tree for all the English words.
+Uses 2-letter chunks to determine the probability of the next letter
+coming up, and thus chooses the right bit string.
+
+Huffmann trees are grouped by two-letter prefixes. An underscore ("_")
+is used where there was no previous letter available (i.e. beginning of
+a word).
+
+DECODING EXAMPLE
+
+Using the example above, to decode "utfull della", we first look
+up the Huffmann tree for the prefix "__", as we start with no previous
+letters. You can look at the first line of dict.hh for that.
+We see "u" is "0111". 
+We append "u" to the prefix, and left-trim it to make it 2-letter,
+so it becomes "_u". We look that up (see `grep '^{ "_u"' dict.hh`).
+In this tree we take "t" (next letter from input", which is "10111".
+Prefix becomes "ut", in it we look up "f" which is "011010".
+Then in "tf" we look up "u" which is "1".
+In "fu" we look up "l" which is "0".
+In "ul" we look up "l" which gives "111".
+
+Then, because the word hit the 6-letter limit, a forced space happens,
+and there's nothing it really encodes.
+
+We proceed to the next word, discarding the old prefix, so we start with "__"
+again.
+Looking up "d" in it we get "1101".
+Then in "_d" we look up "e" which is "1".
+In "de" we look up "l" which is "1110".
+In "el" we look up "l" which is "11".
+In "ll" we look up "a" which is "100".
+
+Putting it all together we get:
+ u    t     f     u l  l     d   e  l   l   a
+0111 10111 011010 1 0 111   1101 1 1110 11 100
+
+Grouping binary digits in 8s:
+01111011 10110101 01111101 11110111 00
+
+Then we just reverse bits in each byte (for no real reason) and discard the
+trailing non-full-byte to get:
+11011110 10101101 10111110 11101111
+
+which is 0xDEADBEEF.
+
+CREDIT
+
 words_alpha.txt taken from https://github.com/dwyl/english-words
 (but removed words with dashes, and converted linefeed to unix)
+
+DISCLAIMER
+
+Not production ready by any means. Contains severe bugs (some strings
+can't be correctly coded). I'm planning compatibility-breaking changes
+(and also adding redundancy and/or checksums).
