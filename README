@@ -33,7 +33,7 @@ letters. You can look at the first line of dict.hh for that.
 We see "u" is "0111". 
 We append "u" to the prefix, and left-trim it to make it 2-letter,
 so it becomes "_u". We look that up (see `grep '^{ "_u"' dict.hh`).
-In this tree we take "t" (next letter from input", which is "10111".
+In this tree we take "t" (next letter from input, which is "10111".
 Prefix becomes "ut", in it we look up "f" which is "011010".
 Then in "tf" we look up "u" which is "1".
 In "fu" we look up "l" which is "0".
